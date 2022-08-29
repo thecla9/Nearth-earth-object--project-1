@@ -17,27 +17,27 @@ class NEODatabase:
     def link_neos_and_approaches(self):
         """Links NEOs and their close approaches together."""
         pdes_to_index_map = {
-            neo.des: index
+            neo.designation: index
             for index, neo in enumerate(self._neos)
         }
 
         for approach in self._approaches:
-            if approach._des in pdes_to_index_map.keys():
+            if approach._designation in pdes_to_index_map.keys():
                 # Assign the approach it's NEO
                 approach.neo = self._neos[pdes_to_index_map.get(
-                    approach._des)]
+                    approach._designation)]
                 # Add the approach to the NEO approaches' list
                 self._neos[pdes_to_index_map.get(
-                    approach._des)].approaches.append(approach)
+                    approach._designation)].approaches.append(approach)
 
         # Generate mappings for neos to designation and neos to names
         self._neos_to_des = {
-            neo.des: neo
+            neo.designation: neo
             for neo in self._neos
         }
         self._neos_to_names = {neo.name: neo for neo in self._neos}
 
-    def get_neo_by_des(self, des):
+    def get_neo_by_designation(self, des):
         """Find and return an NEO by its primary designation.
 
         :param designation: The primary designation of the NEO to search for.
