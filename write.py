@@ -24,32 +24,25 @@ def write_to_csv(results, filename):
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
     """
+
     fieldnames = (
-        'datetime_utc', 'distance_au', 'velocity_km_s',
-        'designation', 'name', 'diameter_km', 'potentially_hazardous'
+        'datetime_utc',
+        'distance_au',
+        'velocity_km_s',
+        'designation',
+        'name',
+        'diameter_km',
+        'potentially_hazardous'
     )
 
-    try:
-        with open(filename, 'w') as outfile:
-            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
-            writer.writeheader()
-
-            for row in results:
-                ca_data = row.serialize()
-                neo_data = row.neo.serialize()
-
-                data = {
-                    'datetime_utc': ca_data.get('datetime_utc'),
-                    'distance_au': ca_data.get('distance_au'),
-                    'velocity_km_s': ca_data.get('velocity_km_s'),
-                    'designation': neo_data.get('designation'),
-                    'name': '' if neo_data.get('name') is None else neo_data.get('name'),
-                    'diameter_km': neo_data.get('diameter_km'),
-                    'potentially_hazardous': neo_data.get('potentially_hazardous')
-                }
-                writer.writerow(data)
-    except Exception as e:
-        print('An error occured!', e)
+    content_list = [
+        {**c_approach.serialize(), **c_approach.neo.serialize()} for c_approach in results
+    ]
+    with open(filename, "w", newline="") as outfile:
+        writer = csv.DictWriter(outfile, fieldnames)
+        writer.writeheader()
+    for content_list in results:
+        writer.writerow(content_list)
 
 
 def write_to_json(results, filename):
@@ -62,29 +55,29 @@ def write_to_json(results, filename):
 
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
-    """
-    try:
-        data = []
 
-        for result in results:
-            ca_data = result.serialize()
-            neo_data = result.neo.serialize()
+"""
+    result_dict = []
+    for content_list in results:
 
-            row = {
-                'datetime_utc': ca_data.get('datetime_utc'),
-                'distance_au': ca_data.get('distance_au'),
-                'velocity_km_s': ca_data.get('velocity_km_s'),
-                'neo': {
-                    'designation': neo_data.get('designation'),
-                    'name': '' if neo_data.get('name') is None else neo_data.get('name'),
-                    'diameter_km': neo_data.get('diameter_km'),
-                    'potentially_hazardous': neo_data.get('potentially_hazardous')
-                }
+        c_data = {** c_data.serialize(), ** c_data.neo.serialize()}
+        c_data["name"] = c_data["name"] if c_data["name"] != None else ""
+        c_data["potentially_hazardous"] = bool(
+            1) if content_list["potentially_hazardous"] else bool(0)
+
+        result_dict.append(
+
+            {
+                "datetime_utc": c_data["datetime_utc"],
+                "distance_au": c_data["distance_au"],
+                "velocity_km_s": c_data["velocity_km_s"],
+                "neo": {
+                    "designation": c_data["designation"],
+                    "name": c_data["name"],
+                    "diameter_km": c_data["diameter_km"],
+                    "potentially_hazardous": c_data["potentially_hazardous"],
+                },
             }
-
-            data.append(row)
-
-        with open(filename, 'w') as outfile:
-            json.dump(data, outfile)
-    except Exception as e:
-        print('An error occured!', e)
+        )
+    with open(filename, "w") as outfile:
+        json.dump(result_dict, outfile, sort_keys=True, indent="\t")

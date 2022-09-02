@@ -33,7 +33,7 @@ class NearEarthObject:
         return {
             'designation': self.designation,
             'name': self.name,
-            'diameter_km': self.distance,
+            'diameter_km': self.diameter,
             'potentially_hazardous': self.hazardous
         }
 

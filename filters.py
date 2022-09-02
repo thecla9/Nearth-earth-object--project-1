@@ -1,6 +1,7 @@
 """Classes to instantiate filters during query operations by the user."""
 
 import operator
+import itertools
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -25,7 +26,7 @@ class AttributeFilter:
 
     @classmethod
     def get(cls, approach):
-        """Get an attribute of interest from a close approach.
+        """Return an attribute of interest from a close approach.
 
         :param approach: A `CloseApproach` on which to evaluate this filter.
         :return: The value of an attribute of interest, comparable to `self.value` via `self.op`.
@@ -42,7 +43,7 @@ class DateFilter(AttributeFilter):
 
     @classmethod
     def get(cls, approach):
-        """Get the date of a close approach.
+        """Return the date of a supplied close approach.
 
         :param approach: A `CloseApproach` object.
         :return: The date of the close approach.
@@ -55,7 +56,7 @@ class DistanceFilter(AttributeFilter):
 
     @classmethod
     def get(cls, approach):
-        """Get the distance of a close approach.
+        """Return the distance of a supplied close approach.
 
         :param approach: A `CloseApproach` object.
         :return: The distance of the close approach.
@@ -68,7 +69,7 @@ class VelocityFilter(AttributeFilter):
 
     @classmethod
     def get(cls, approach):
-        """Get the velocity of a close approach.
+        """Return the velocity of a supplied close approach.
 
         :param approach: A `CloseApproach` object.
         :return: The velocity of the close approach.
@@ -81,7 +82,7 @@ class DiameterFilter(AttributeFilter):
 
     @classmethod
     def get(cls, approach):
-        """Get the diameter of the NEO assigned to the close approach.
+        """Return the diameter of the NEO assigned to the supplied close approach.
 
         :param approach: A `CloseApproach` object.
         :return: The diameter of the close approach's NEO.
@@ -102,16 +103,11 @@ class HazardousFilter(AttributeFilter):
         return approach.neo.hazardous
 
 
-def create_filters(date=None,
-                   start_date=None,
-                   end_date=None,
-                   distance_min=None,
-                   distance_max=None,
-                   velocity_min=None,
-                   velocity_max=None,
-                   diameter_min=None,
-                   diameter_max=None,
-                   hazardous=None):
+def create_filters(date=None, start_date=None,
+                   end_date=None, distance_min=None,
+                   distance_max=None, velocity_min=None,
+                   velocity_max=None, diameter_min=None,
+                   diameter_max=None, hazardous=None):
     """Create a collection of filters (AttributeFilters) from user-specified criteria.
 
     :param date: A `date` on which a matching `CloseApproach` occurs.
@@ -160,6 +156,5 @@ def limit(iterator, n=None):
     :yield: The first (at most) `n` values from the iterator.
     """
     if n == 0 or n is None:
-        return iterator
-
-    return [x for i, x in enumerate(iterator) if i < n]
+        return itertools.islice(iterator, 0, n)
+      # Second option we can use return [x for i, x in enumerate(iterator) if i < n]
