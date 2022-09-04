@@ -1,7 +1,6 @@
 """Classes to instantiate filters during query operations by the user."""
 
 import operator
-import itertools
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -155,6 +154,10 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    if n == 0 or n is None:
-        return itertools.islice(iterator, 0, n)
-      # Second option we can use return [x for i, x in enumerate(iterator) if i < n]
+    # Return the whole iterator if the limit is 0 or None
+    if n is None or n == 0:
+        return iterator
+
+    # Return the number n of results specified
+    # Alteranatively we can use the Islice- from itertools import islice
+    return [x for i, x in enumerate(iterator) if i < n]

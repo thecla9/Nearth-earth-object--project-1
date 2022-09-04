@@ -35,14 +35,27 @@ def write_to_csv(results, filename):
         'potentially_hazardous'
     )
 
-    content_list = [
-        {**c_approach.serialize(), **c_approach.neo.serialize()} for c_approach in results
-    ]
-    with open(filename, "w", newline="") as outfile:
-        writer = csv.DictWriter(outfile, fieldnames)
-        writer.writeheader()
-    for content_list in results:
-        writer.writerow(content_list)
+    try:
+        with open(filename, 'w') as outfile:
+            # Write the field names in the csv file first
+            writer = csv.DictWriter(outfile, fieldnames=fieldnames)
+            writer.writeheader()
+
+            for row in results:
+                ca_data = row.serialize()
+                neo_data = row.neo.serialize()
+
+                # A shorter way to create the dictionary by unwrapping the two dicts to one
+                data = {**ca_data, **neo_data}
+
+                # Replace the 'name' initial value with the appropriate value
+                data['name'] = '' if neo_data.get(
+                    'name') is None else neo_data.get('name')
+
+                # Write the row of data after extracting the information
+                writer.writerow(data)
+    except Exception as e:
+        print('Something went wrong!', e)
 
 
 def write_to_json(results, filename):
@@ -57,27 +70,25 @@ def write_to_json(results, filename):
     :param filename: A Path-like object pointing to where the data should be saved.
 
 """
-    result_dict = []
-    for content_list in results:
+    try:
+        data = []
 
-        c_data = {** c_data.serialize(), ** c_data.neo.serialize()}
-        c_data["name"] = c_data["name"] if c_data["name"] != None else ""
-        c_data["potentially_hazardous"] = bool(
-            1) if content_list["potentially_hazardous"] else bool(0)
+        for result in results:
+            ca_data = result.serialize()
+            neo_data = result.neo.serialize()
 
-        result_dict.append(
+            # A shorter way to create the dictionary
+            row = ca_data
+            row['neo'] = neo_data
 
-            {
-                "datetime_utc": c_data["datetime_utc"],
-                "distance_au": c_data["distance_au"],
-                "velocity_km_s": c_data["velocity_km_s"],
-                "neo": {
-                    "designation": c_data["designation"],
-                    "name": c_data["name"],
-                    "diameter_km": c_data["diameter_km"],
-                    "potentially_hazardous": c_data["potentially_hazardous"],
-                },
-            }
-        )
-    with open(filename, "w") as outfile:
-        json.dump(result_dict, outfile, sort_keys=True, indent="\t")
+            # Replace the 'name' initial value with the appropriate value
+            row['neo']['name'] = '' if neo_data.get(
+                'name') is None else neo_data.get('name')
+
+            # Add the data to the list
+            data.append(row)
+
+        with open(filename, 'w') as outfile:
+            json.dump(data, outfile)
+    except Exception as e:
+        print('An error occured!', e)
