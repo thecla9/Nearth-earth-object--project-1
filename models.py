@@ -12,7 +12,6 @@ class NearEarthObject:
 
         :param info: A dictionary of excess keyword arguments supplied to the constructor.
         """
-
         self.designation = str(info["pdes"])
         self.name = info["name"] if info["name"] != "" else None
         self.diameter = float(
@@ -34,13 +33,11 @@ class NearEarthObject:
     @property
     def fullname(self):
         """Return a representation of the full name of this NEO."""
-
         is_fullname = f"{self.designation} ({self.name})" if self.name else f"{self.designation}"
         return is_fullname
 
     def __str__(self):
         """Return `str(self)`."""
-
         is_hazardous = "is" if self.hazardous else "is not"
 
         return f'NEO {self.fullname} has a diameter of {self.diameter:.3} km and {is_hazardous} potentially hazardous'
@@ -59,7 +56,6 @@ class CloseApproach:
 
         :param info: A dictionary of excess keyword arguments supplied to the constructor.
         """
-
         self._designation = info["des"]
 
         self.time = cd_to_datetime(info["cd"])
@@ -81,14 +77,11 @@ class CloseApproach:
     @property
     def time_str(self):
         """Return a formatted representation of this `CloseApproach`'s approach time."""
-
         self.time = datetime_to_str(self.time)
-
         return f'{self.time}'
 
     def __str__(self):
         """Return `str(self)`."""
-
         return f"At {self.time_str}, '{self.neo.fullname}' approaches Earth at a distance of {self.distance:.2f} au and a velocity of {self.velocity:.2f} km/s"
 
     def __repr__(self):
